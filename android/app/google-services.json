@@ -8,42 +8,37 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:123456789012:android:0a1b2c3d4e5f67890d",  
+        "mobilesdk_app_id": "1:393650997319:android:b8efc9010c140e0d9b0962",
         "android_client_info": {
           "package_name": "com.example.tele_tudo_app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "123456789012-abcd1234efgh5678ijkl9012mnop3456.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.tele_tudo_app",
-            "certificate_hash": "abcdef123456" 
-          }
+          "client_id": "393650997319:web:b8efc9010c140e0d9b0962",
+          "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB-ABCDE12FghIJKLMnoPQRsTuVwxyz"
+          "current_key": "AIzaSyB8SX42kAOa9DbzeoApujmrbgjlZWph34Y"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "123456789012-abcd1234efgh5678ijkl9012mnop3456.apps.googleusercontent.com",
+              "client_id": "393650997319:web:b8efc9010c140e0d9b0962",
               "client_type": 3
             }
           ]
         },
-        "google_analytics_service": {
-          "status": 1,
-          "account_id": "1234567890"
+        "analytics_service": {
+          "status": 1
         },
         "cloud_messaging_service": {
           "status": 2,
-          "token": "abcdefg1234567"
+          "apns_config": []
         }
       }
     }

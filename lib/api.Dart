@@ -125,6 +125,7 @@ static Future<bool> registerUser(String nome, String email, String senha, String
     int? userid = prefs.getInt('ID');
     double lat = 0.0; 
     double lon = 0.0; 
+    int vez = prefs.getInt('vez') ?? 0;
     if (userid != null) {
       String baseUrl = "https://teletudo.com/api/heartbeat";
       final response = await http.post(
@@ -137,13 +138,16 @@ static Future<bool> registerUser(String nome, String email, String senha, String
           'userid': userid,
           'lat': lat,
           'lon': lon,
+          'vez': vez
         }),
       );
+      print(response.statusCode);
       if (response.statusCode == 200) {
         print('Heartbeat enviado com sucesso');
       } else {
         print('Erro ao enviar heartbeat');
       }
+      await prefs.setInt('vez', vez + 1);
     }
  }
 

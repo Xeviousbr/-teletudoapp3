@@ -32,10 +32,14 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: Text('Login (Versão 1.0.7'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -50,27 +54,31 @@ class _LoginPageState extends State<LoginPage> {
               decoration: const InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
+
             ElevatedButton(
               onPressed: () async {
-                String user = _userController.text;
-                String password = _passwordController.text;
-                double lat = 0.0;
-                double lon = 0.0;
-                print("Antes do Login.");
-                bool loginSuccessful =
-                    await API.veLogin(user, password, lat, lon);
-                if (loginSuccessful) {
-                  print("Depois do Login.");
-                  getTokenAndHandle();
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
-                } else {
-                  print("Falha no login.");
+                try {
+                  String user = _userController.text;
+                  String password = _passwordController.text;
+                  double lat = 0.0;
+                  double lon = 0.0;
+                  user = "Xevious";
+                  password = "ufrs3753";
+                  bool loginSuccessful = await API.veLogin(user, password, lat, lon);
+                  if (loginSuccessful) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const HomePage()),
+                    );
+                  } else {
+                    showErrorDialog("Falha no login. Verifique suas credenciais.");
+                  }
+                } catch (e) {
+                  showErrorDialog("Erro durante o login: $e");
                 }
               },
               child: const Text("Login"),
             ),
+
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
@@ -87,30 +95,25 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void getTokenAndHandle() {
-    if (UniversalPlatform.isAndroid) {
-      FirebaseMessaging.instance.getToken().then((token) {
-        if (token != null) {
-          print("Token recebido: $token");
-          API.sendTokenToServer(token);
-        } else {
-          print("Token é null");
-          showSnackbar("Falha ao obter token: Token é nulo.");
-        }
-      }).catchError((error) {
-        print("Erro ao obter o token: $error");
-        showSnackbar("Erro ao obter token: $error");
-      });
-    } else {
-      String fakeToken = "fake_" + Random().nextInt(999999).toString();
-      print("Token falso gerado: $fakeToken");
-      API.sendTokenToServer(fakeToken);
-    }
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Impede que o usuário feche o diálogo tocando fora dele
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Erro do Firebase"),
+          content: SingleChildScrollView( // Permite rolagem se a mensagem for longa
+            child: SelectableText(message), // Torna a mensagem selecionável e copiável
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  void showSnackbar(String message) {
-    final snackBar = SnackBar(content: Text(message));
-    ScaffoldMessenger.of(context)
-        .showSnackBar(snackBar); // Modificado para usar ScaffoldMessenger
-  }
 }
