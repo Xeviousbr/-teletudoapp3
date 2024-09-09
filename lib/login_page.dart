@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tele_tudo_app/HomePage.dart';
 import 'package:tele_tudo_app/api.dart';
