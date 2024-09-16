@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _startHeartbeatTimer() {
-    _timer = Timer.periodic(const Duration(minutes: 1), (timer) async {
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
       chamaHeartbeat();
     });
   }

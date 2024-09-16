@@ -67,6 +67,7 @@ static Future<bool> registerUser(String nome, String email, String senha, String
 }
 
   static Future<void> sendHeartbeat() async {
+    print('Entrou em sendHeartbeat');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? userid = prefs.getInt('ID');
     double lat = 0.0; 
@@ -90,6 +91,10 @@ static Future<bool> registerUser(String nome, String email, String senha, String
       print(response.statusCode);
       if (response.statusCode == 200) {
         print('Heartbeat enviado com sucesso');
+        var data = json.decode(response.body);
+        int chamado = data['chamado']; // Acessa o valor de 'chamado'
+        await prefs.setInt('chamado', chamado); // Salva o valor no SharedPreferences
+        print('Valor de chamado armazenado: $chamado');
       } else {
         print('Erro ao enviar heartbeat');
       }

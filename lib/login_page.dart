@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:tele_tudo_app/HomePage.dart';
 import 'package:tele_tudo_app/api.dart';
 import 'package:tele_tudo_app/register_page.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 void main() => runApp(const MyApp());
 
