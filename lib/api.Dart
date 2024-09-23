@@ -66,13 +66,15 @@ static Future<bool> registerUser(String nome, String email, String senha, String
   }
 }
 
-  static Future<void> sendHeartbeat() async {
+  static Future<int?> sendHeartbeat() async {
     print('Entrou em sendHeartbeat');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? userid = prefs.getInt('ID');
-    double lat = 0.0; 
-    double lon = 0.0; 
+    double lat = 0.0;
+    double lon = 0.0;
     int vez = prefs.getInt('vez') ?? 0;
+    print('vez = ' + vez.toString());
+    int? ret = null;
     if (userid != null) {
       String baseUrl = "https://teletudo.com/api/heartbeat";
       final response = await http.post(
@@ -90,17 +92,22 @@ static Future<bool> registerUser(String nome, String email, String senha, String
       );
       print(response.statusCode);
       if (response.statusCode == 200) {
+        print('Response Body: ${response.body}');
         print('Heartbeat enviado com sucesso');
         var data = json.decode(response.body);
-        int chamado = data['chamado']; // Acessa o valor de 'chamado'
-        await prefs.setInt('chamado', chamado); // Salva o valor no SharedPreferences
+        int chamado = data['chamado'];
+        int modo = data['modo'] ?? 3; // Supondo que a chave 'modo' é retornada
+        await prefs.setInt('chamado', chamado);
+        await prefs.setInt('modo', modo);
         print('Valor de chamado armazenado: $chamado');
+        ret = modo;
       } else {
         print('Erro ao enviar heartbeat');
       }
       await prefs.setInt('vez', vez + 1);
     }
- }
+    return ret;
+  }
 
 }  
 
