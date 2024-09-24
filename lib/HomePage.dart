@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:tele_tudo_app/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'models/delivery_details.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -17,7 +19,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _scheduleNextHeartbeat(10); // Primeira chamada agendada para daqui a 10 segundos
+    _scheduleNextHeartbeat(
+        10); // Primeira chamada agendada para daqui a 10 segundos
   }
 
   @override
@@ -34,7 +37,9 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
       ),
       body: Center(
-        child: deliveryData != null ? _buildDeliveryDetails() : const Text('Aguardando novas entregas...'),
+        child: deliveryData != null
+            ? _buildDeliveryDetails()
+            : const Text('Aguardando novas entregas...'),
       ),
     );
   }
@@ -48,7 +53,8 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Detalhes da Entrega:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text('Detalhes da Entrega:',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
             ListTile(
               leading: Icon(Icons.location_on),
@@ -76,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: Text('Aceitar Entrega'),
                   style: ElevatedButton.styleFrom(
-                      minimumSize: Size(150, 40),
+                    minimumSize: Size(150, 40),
                     backgroundColor: Colors.green,
                   ),
                 ),
@@ -89,7 +95,6 @@ class _HomePageState extends State<HomePage> {
                     minimumSize: Size(150, 40),
                     backgroundColor: Colors.red,
                   ),
-                  // style: ElevatedButton.styleFrom(minimumSize: Size(150, 40), primary: Colors.red),
                 ),
               ],
             ),
@@ -100,25 +105,36 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _scheduleNextHeartbeat(int seconds) {
-    _timer?.cancel();  // Cancela qualquer timer existente antes de criar um novo
+    _timer?.cancel(); // Cancela qualquer timer existente antes de criar um novo
     _timer = Timer(Duration(seconds: seconds), chamaHeartbeat);
   }
 
   Future<void> chamaHeartbeat() async {
-    var modo = await API.sendHeartbeat();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int nextInterval = (modo == 3) ? 60 : 10;
-    _scheduleNextHeartbeat(nextInterval);
-    if (modo != null && modo == 1) {
-      setState(() {
-        deliveryData = {
-          'enderIN': prefs.getString('enderIN') ?? 'Desconhecido',
-          'enderFN': prefs.getString('enderFN') ?? 'Desconhecido',
-          'dist': prefs.getDouble('dist') ?? 0.0,
-          'valor': prefs.getDouble('valor') ?? 0.0,
-          'peso': prefs.getDouble('peso') ?? 0.0,
-        };
-      });
+    DeliveryDetails? deliveryDetails = (await API.sendHeartbeat()) as DeliveryDetails?;
+    if (deliveryDetails != null) {
+      int nextInterval = (deliveryDetails.modo ?? 3) == 3 ? 60 : 5;
+      _scheduleNextHeartbeat(nextInterval);
+
+      if (deliveryDetails.chamado != null && deliveryDetails.chamado! > 0) {
+        setState(() {
+          deliveryData = {
+            'enderIN': deliveryDetails.enderIN ?? 'Desconhecido',
+            'enderFN': deliveryDetails.enderFN ?? 'Desconhecido',
+            'dist': deliveryDetails.dist ?? 0.0,
+            'dist': deliveryDetails.dist ?? 0.0,
+            'valor': deliveryDetails.valor ?? 0.0,
+            'peso': deliveryDetails.peso ?? 0.0,
+          };
+        });
+        print("chamado = ${deliveryDetails.chamado} em chamaHeartbeat");
+      } else {
+        print("chamado = 0 em chamaHeartbeat");
+      }
+    } else {
+      // Se deliveryDetails é nulo, reagende o heartbeat para um intervalo padrão, ou trate como um erro
+      print("Erro ao receber dados de heartbeat");
+      _scheduleNextHeartbeat(60);  // Usando 60 segundos como fallback
     }
   }
+
 }
