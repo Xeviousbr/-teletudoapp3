@@ -25,4 +25,5 @@ class DeliveryDetails {
     if (value == '') return null;
     return (value is String ? double.tryParse(value) : value)?.toDouble();
   }
+
 }
