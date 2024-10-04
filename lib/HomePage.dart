@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   bool hasPickedUp = false;
   bool deliveryCompleted = false;
   bool hasAcceptedDelivery = false;
-  String saldo = 'R\$ 0,00';  // Inicializa o saldo como R$ 0,00
+  String saldo = 'R\$ 0,00'; // Inicializa o saldo como R$ 0,00
 
   @override
   void initState() {
@@ -44,22 +44,22 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (deliveryData != null) _buildDeliveryDetails(),
-            if (deliveryData == null && (deliveryCompleted || !hasAcceptedDelivery)) ...[
+            if (deliveryData == null &&
+                (deliveryCompleted || !hasAcceptedDelivery)) ...[
               Padding(
                 padding: EdgeInsets.all(20),
-                child: Text("Saldo R\$ 8,00", style: TextStyle(fontSize: 18, color: Colors.black)),
+                child: Text("Saldo R\$ 8,00",
+                    style: TextStyle(fontSize: 18, color: Colors.black)),
               ),
               ElevatedButton(
-                onPressed: null,  // Desabilita temporariamente
+                onPressed: null, // Desabilita temporariamente
                 child: const Text('Detalhes'),
                 style: ElevatedButton.styleFrom(
-                    minimumSize: Size(150, 40),
-                    backgroundColor: Colors.grey
-                ),
+                    minimumSize: Size(150, 40), backgroundColor: Colors.grey),
               ),
-              SizedBox(height: 10),  // Espaço entre os botões
+              SizedBox(height: 10), // Espaço entre os botões
               ElevatedButton(
-                onPressed: null,  // Desabilita temporariamente
+                onPressed: null, // Desabilita temporariamente
                 child: const Text('Resgate'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(150, 40),
@@ -67,11 +67,14 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ],
-            if (statusMessage != null) Padding(
-              padding: EdgeInsets.all(20),
-              child: Text(statusMessage!, style: TextStyle(fontSize: 18, color: Colors.red)),
-            ),
-            if (hasAcceptedDelivery && !hasPickedUp)  // Só mostra se a entrega foi aceita e ainda não foi ao fornecedor
+            if (statusMessage != null)
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Text(statusMessage!,
+                    style: TextStyle(fontSize: 18, color: Colors.red)),
+              ),
+            if (hasAcceptedDelivery &&
+                !hasPickedUp) // Só mostra se a entrega foi aceita e ainda não foi ao fornecedor
               ElevatedButton(
                 onPressed: () {
                   handlePickedUp();
@@ -82,7 +85,8 @@ class _HomePageState extends State<HomePage> {
                   backgroundColor: Colors.orange,
                 ),
               ),
-            if (hasPickedUp && !deliveryCompleted)  // Mostra se o fornecedor já foi notificado
+            if (hasPickedUp &&
+                !deliveryCompleted) // Mostra se o fornecedor já foi notificado
               ElevatedButton(
                 onPressed: () {
                   handleDeliveryCompleted();
@@ -98,111 +102,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: const Text('Teletudo App - Entregas'),
-  //       centerTitle: true,
-  //     ),
-  //     body: Center(
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: [
-  //           if (deliveryData != null) _buildDeliveryDetails(),
-  //           if (deliveryData == null && (deliveryCompleted || !hasAcceptedDelivery)) ...[
-  //             Padding(
-  //               padding: EdgeInsets.all(20),
-  //               child: Text("Saldo R\$ 8,00", style: TextStyle(fontSize: 18, color: Colors.black)),
-  //             ),
-  //             ElevatedButton(
-  //               onPressed: null,  // Desabilita temporariamente
-  //               child: const Text('Detalhes'),
-  //               style: ElevatedButton.styleFrom(
-  //                 minimumSize: Size(150, 40),
-  //                 backgroundColor: Colors.grey
-  //               ),
-  //             ),
-  //             SizedBox(height: 10),  // Espaço entre os botões
-  //             ElevatedButton(
-  //               onPressed: null,  // Desabilita temporariamente
-  //               child: const Text('Resgate'),
-  //               style: ElevatedButton.styleFrom(
-  //                 minimumSize: Size(150, 40),
-  //                 backgroundColor: Colors.grey,
-  //               ),
-  //             ),
-  //           ],
-  //           if (statusMessage != null) Padding(
-  //             padding: EdgeInsets.all(20),
-  //             child: Text(statusMessage!, style: TextStyle(fontSize: 18, color: Colors.red)),
-  //           ),
-  //           if (hasAcceptedDelivery && !hasPickedUp)  // Só mostra se a entrega foi aceita e ainda não foi ao fornecedor
-  //             ElevatedButton(
-  //               onPressed: () {
-  //                 handlePickedUp();
-  //               },
-  //               child: const Text('Cheguei no Fornecedor'),
-  //               style: ElevatedButton.styleFrom(
-  //                 minimumSize: Size(150, 40),
-  //                 backgroundColor: Colors.orange,
-  //               ),
-  //             ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: const Text('Teletudo App - Entregas'),
-  //       centerTitle: true,
-  //     ),
-  //     body: Center(
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: [
-  //           if (deliveryData != null) _buildDeliveryDetails(),
-  //           if (deliveryData == null && (deliveryCompleted || !hasAcceptedDelivery)) ...[
-  //             Padding(
-  //               padding: EdgeInsets.all(20),
-  //               child: Text(saldo, style: TextStyle(fontSize: 18, color: Colors.black)),
-  //             ),
-  //             ElevatedButton(
-  //               onPressed: () {
-  //                 // Lógica para mostrar detalhes
-  //               },
-  //               child: Text('Detalhes'),
-  //               style: ElevatedButton.styleFrom(
-  //                 minimumSize: Size(150, 40),
-  //                 backgroundColor: Colors.blue,
-  //               ),
-  //             ),
-  //             SizedBox(height: 10),  // Espaço entre os botões
-  //             ElevatedButton(
-  //               onPressed: () {
-  //                 // Lógica para resgatar saldo
-  //               },
-  //               child: Text('Resgate'),
-  //               style: ElevatedButton.styleFrom(
-  //                 minimumSize: Size(150, 40),
-  //                 backgroundColor: Colors.blue,
-  //               ),
-  //             ),
-  //           ],
-  //           if (statusMessage != null) Padding(
-  //             padding: EdgeInsets.all(20),
-  //             child: Text(statusMessage!, style: TextStyle(fontSize: 18, color: Colors.red)),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _buildDeliveryDetails() {
     return Card(
@@ -229,8 +128,7 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.monetization_on, color: Colors.green),
               title: Text(
                   'Valor: R\$ ${deliveryData!['valor'].toStringAsFixed(2)}',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-              ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
             ButtonBar(
               alignment: MainAxisAlignment.center,
@@ -242,9 +140,7 @@ class _HomePageState extends State<HomePage> {
                   child: Text(
                     'Aceitar',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold
-                    ),
+                        color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(150, 40),
@@ -258,9 +154,7 @@ class _HomePageState extends State<HomePage> {
                   child: Text(
                     'Recusar',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold
-                    ),
+                        color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(150, 40),
@@ -305,7 +199,8 @@ class _HomePageState extends State<HomePage> {
         int? userId = prefs.getInt('idUser');
         if (userId != null) {
           await API.reportViewToServer(userId, deliveryDetails.chamado);
-          print("Visualização reportada: chamado = ${deliveryDetails.chamado}, userId = $userId");
+          print(
+              "Visualização reportada: chamado = ${deliveryDetails.chamado}, userId = $userId");
         }
       }
 
@@ -324,13 +219,14 @@ class _HomePageState extends State<HomePage> {
         hasAcceptedDelivery = true;
         hasPickedUp = false;
         statusMessage = "Entrega aceita. A caminho do fornecedor.";
-        deliveryData = null;  // Limpa os dados de entrega
+        deliveryData = null; // Limpa os dados de entrega
       });
     } else {
       setState(() {
         hasAcceptedDelivery = false;
         hasPickedUp = false;
-        deliveryCompleted = true;  // Considera a operação concluída para mostrar saldo e botões
+        deliveryCompleted =
+            true; // Considera a operação concluída para mostrar saldo e botões
         statusMessage = "Entrega recusada.";
         deliveryData = null;
       });
@@ -339,13 +235,14 @@ class _HomePageState extends State<HomePage> {
 
   void handleDeliveryCompleted() async {
     // Suponha que esta função envie a confirmação final ao servidor
-    bool success = await API.notifyDeliveryCompleted(); // Ajuste conforme seu API
+    bool success =
+        await API.notifyDeliveryCompleted(); // Ajuste conforme seu API
     if (success) {
       setState(() {
         deliveryCompleted = true;
-        hasAcceptedDelivery = false;  // Reseta o aceite de nova entrega
-        hasPickedUp = false;  // Reseta o status de retirada
-        deliveryData = null;  // Limpa os dados da entrega
+        hasAcceptedDelivery = false; // Reseta o aceite de nova entrega
+        hasPickedUp = false; // Reseta o status de retirada
+        deliveryData = null; // Limpa os dados da entrega
         statusMessage = 'Entrega concluída com sucesso!';
       });
     } else {
@@ -360,7 +257,8 @@ class _HomePageState extends State<HomePage> {
       statusMessage = "Aguardando novas entregas...";
       hasPickedUp = false;
       deliveryCompleted = false;
-      hasAcceptedDelivery = false; // Resetar todos os flags de estado, se necessário.
+      hasAcceptedDelivery =
+          false; // Resetar todos os flags de estado, se necessário.
     });
   }
 
@@ -368,7 +266,7 @@ class _HomePageState extends State<HomePage> {
     bool success = await API.notifyPickedUp();
     if (success) {
       setState(() {
-        hasPickedUp = true;  // Atualiza que chegou no fornecedor
+        hasPickedUp = true; // Atualiza que chegou no fornecedor
         statusMessage = "Peguei a encomenda com o fornecedor.";
         deliveryCompleted = false;
       });
@@ -378,5 +276,4 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
-
 }
