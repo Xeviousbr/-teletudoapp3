@@ -55,19 +55,12 @@ class API {
   }
 
   static Future<DeliveryDetails?> sendHeartbeat() async {
-    print('Entrou em sendHeartbeat');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? userid = prefs.getInt('idUser');
     double lat = 0.0;
     double lon = 0.0;
     int vez = prefs.getInt('vez') ?? 0;
     await prefs.setInt('vez', vez + 1);
-
-    print('userid = ' + userid.toString());
-    print('lat = ' + lat.toString());
-    print('lon = ' + lon.toString());
-    print('vez = ' + vez.toString());
-
     if (userid != null) {
       String baseUrl = "https://teletudo.com/api/heartbeat";
       final response = await http.post(
@@ -83,9 +76,7 @@ class API {
           'vez': vez
         }),
       );
-      print(response.statusCode);
       if (response.statusCode == 200) {
-        print('Heartbeat enviado com sucesso');
         print('Response Body: ${response.body}');
         var data = json.decode(response.body);
         int modo = data['modo'] ?? 3;
@@ -161,11 +152,65 @@ class API {
 }
 
   static Future<bool> notifyPickedUp() async {
-    return true;
+    print("Entrou na API notifyPickedUp");
+    try {
+      String baseUrl = "https://teletudo.com/api/notifyPickedUp";
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      int? currentChamado = prefs.getInt('currentChamado');
+      print("chamado = "+currentChamado.toString());
+      final response = await http.post(
+        Uri.parse(baseUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode({
+          'chamado': currentChamado
+        }),
+      );
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+          print("Sucesso ao notificar o servidor: ${response.body}");
+          return true;
+        } else {
+          print("Falha ao notificar o servidor: ${response.body}");
+          return false;
+        }
+    } catch (e) {
+      print("Erro na chamada API: $e");
+      return false;
+    }
   }
 
   static Future<bool> notifyDeliveryCompleted() async {
-    return true;
+    print("Entrou na API notifyDeliveryCompleted");
+    try {
+      String baseUrl = "https://teletudo.com/api/notifyDeliveryCompleted";
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      int? currentChamado = prefs.getInt('currentChamado');
+      print("chamado = "+currentChamado.toString());
+      final response = await http.post(
+        Uri.parse(baseUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode({
+          'chamado': currentChamado
+        }),
+      );
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        print("Sucesso ao notificar o servidor: ${response.body}");
+        return true;
+      } else {
+        print("Falha ao notificar o servidor: ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Erro na chamada API: $e");
+      return false;
+    }
   }
 
 }  
