@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login (Versão 1.0.7'),
+        title: Text('Login (Versão 1.0.8'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -76,7 +76,6 @@ class _LoginPageState extends State<LoginPage> {
               },
               child: const Text("Login"),
             ),
-
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
