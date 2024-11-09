@@ -24,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _scheduleNextHeartbeat(2);
+    updateSaldo();
   }
 
   @override
@@ -48,7 +49,7 @@ class _HomePageState extends State<HomePage> {
                 (deliveryCompleted || !hasAcceptedDelivery)) ...[
               Padding(
                 padding: EdgeInsets.all(20),
-                child: Text("Saldo R\$ 8,00",
+                child: Text(saldo,
                     style: TextStyle(fontSize: 18, color: Colors.black)),
               ),
               ElevatedButton(
@@ -180,11 +181,8 @@ class _HomePageState extends State<HomePage> {
     if (deliveryDetails != null) {
       double valorDelivery = deliveryDetails.valor ?? 0.0;
       int? currentChamado = prefs.getInt('currentChamado');
-
-      // Verifica se o novo chamado é diferente do último registrado
       if (deliveryDetails.chamado != currentChamado && valorDelivery > 0.0) {
         await prefs.setInt('currentChamado', deliveryDetails.chamado ?? 0);
-
         setState(() {
           deliveryData = {
             'enderIN': deliveryDetails.enderIN ?? 'Desconhecido',
@@ -195,7 +193,6 @@ class _HomePageState extends State<HomePage> {
             'chamado': deliveryDetails.chamado,
           };
         });
-
         int? userId = prefs.getInt('idUser');
         if (userId != null) {
           await API.reportViewToServer(userId, deliveryDetails.chamado);
@@ -203,8 +200,6 @@ class _HomePageState extends State<HomePage> {
               "Visualização reportada: chamado = ${deliveryDetails.chamado}, userId = $userId");
         }
       }
-
-      // Agendar o próximo heartbeat de acordo com o 'modo'
       int nextInterval = (deliveryDetails.modo ?? 3) == 3 ? 60 : 10;
       _scheduleNextHeartbeat(nextInterval);
     } else {
@@ -234,7 +229,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void handleDeliveryCompleted() async {
-    // Suponha que esta função envie a confirmação final ao servidor
     bool success =
         await API.notifyDeliveryCompleted(); // Ajuste conforme seu API
     if (success) {
@@ -245,6 +239,7 @@ class _HomePageState extends State<HomePage> {
         deliveryData = null; // Limpa os dados da entrega
         statusMessage = 'Entrega concluída com sucesso!';
       });
+      updateSaldo();
     } else {
       print("Falha ao confirmar a entrega.");
     }
@@ -276,4 +271,22 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
+
+  Future<void> updateSaldo() async {
+    print("updateSaldo");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('idUser');
+    if (userId != null) {
+      try {
+        String newSaldo = await API.saldo(userId);
+        print("Saldo = "+newSaldo);
+        setState(() {
+          saldo = 'R\$ $newSaldo';
+        });
+      } catch (e) {
+        print('Erro ao atualizar saldo: $e');
+      }
+    }
+  }
+
 }

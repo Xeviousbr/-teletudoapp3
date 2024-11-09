@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login (Versão 1.0.8'),
+        title: Text('Login (Versão 1.1.5'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -52,7 +52,6 @@ class _LoginPageState extends State<LoginPage> {
               decoration: const InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
-
             ElevatedButton(
               onPressed: () async {
                 try {
@@ -60,19 +59,33 @@ class _LoginPageState extends State<LoginPage> {
                   String password = _passwordController.text;
                   double lat = 0.0;
                   double lon = 0.0;
-                  user = "Xevious";
-                  password = "ufrs3753";
-                  bool loginSuccessful = await API.veLogin(user, password, lat, lon);
-                  if (loginSuccessful) {
+                  // user = "Xevious";
+                  // password = "ufrs3753";
+
+                  String result = await API.veLogin(user, password, lat, lon);
+                  if (result == "") {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (context) => const HomePage()),
                     );
                   } else {
-                    showErrorDialog("Falha no login. Verifique suas credenciais.");
+                    showErrorDialog(result);
                   }
+
+                  // bool loginSuccessful = await API.veLogin(user, password, lat, lon);
+
+                  // if (loginSuccessful) {
+                  //   Navigator.of(context).pushReplacement(
+                  //     MaterialPageRoute(builder: (context) => const HomePage()),
+                  //   );
+                  // } else {
+                  //   showErrorDialog(
+                  //       "Falha no login. Verifique suas credenciais.");
+                  // }
+
                 } catch (e) {
                   showErrorDialog("Erro durante o login: $e");
                 }
+
               },
               child: const Text("Login"),
             ),
@@ -95,12 +108,13 @@ class _LoginPageState extends State<LoginPage> {
   void showErrorDialog(String message) {
     showDialog(
       context: context,
-      barrierDismissible: false, // Impede que o usuário feche o diálogo tocando fora dele
+      barrierDismissible:
+          false, // Impede que o usuário feche o diálogo tocando fora dele
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Erro do Firebase"),
-          content: SingleChildScrollView( // Permite rolagem se a mensagem for longa
-            child: SelectableText(message), // Torna a mensagem selecionável e copiável
+          title: const Text("Erro"),
+          content: SingleChildScrollView(
+            child: SelectableText(message),
           ),
           actions: [
             TextButton(
@@ -112,5 +126,4 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
   }
-
 }

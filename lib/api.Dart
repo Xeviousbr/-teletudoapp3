@@ -45,7 +45,7 @@ class API {
         },
         body: json.encode({
           'chamadoId': chamado,
-          'motoboyId': userid, 
+          'motoboyId': userid,
         }),
       );
       print("Visualização reportada ao servidor com sucesso.");
@@ -89,7 +89,7 @@ class API {
     return null;
   }
 
-  static Future<bool> veLogin(String user, String password, double lat, double lon) async {
+  static Future<String> veLogin(String user, String password, double lat, double lon) async {
     String baseUrl = "https://teletudo.com/api/login";
     final response = await http.post(
       Uri.parse(baseUrl),
@@ -100,8 +100,8 @@ class API {
       body: json.encode({
         'user': user,
         'password': password,
-        'lat': lat, 
-        'lon': lon, 
+        'lat': lat,
+        'lon': lon,
       }),
     );
     if (response.statusCode == 200) {
@@ -112,52 +112,49 @@ class API {
         final int idUser = ret["id"] ?? 0;
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setInt('idUser', idUser);
-        return true;
+        return "";
       } else {
-        return false;
+        return "ERRO";
       }
     } else {
-      print('return false');
-      return false;
+      return "ERRO";
     }
   }
 
   static Future<bool> registerUser(String nome, String email, String senha, String telefone, String cnh, String placa, String PIX) async {
-  String baseUrl = "https://teletudo.com/api/cadboy";
-  final response = await http.post(
-    Uri.parse(baseUrl),
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: json.encode({
-      'nome_completo': nome,
-      'email': email,
-      'senha': senha,
-      'telefone': telefone,
-      'cnh': cnh,
-      'placa': placa,
-      'PIX': PIX
-    }),
-  );
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    final ret = json.decode(response.body);    
-    final int idUser = ret["id"] ?? 0; 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('idUser', idUser);
-    return true;
-  } else {
-    return false;
+    String baseUrl = "https://teletudo.com/api/cadboy";
+    final response = await http.post(
+      Uri.parse(baseUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: json.encode({
+        'nome_completo': nome,
+        'email': email,
+        'senha': senha,
+        'telefone': telefone,
+        'cnh': cnh,
+        'placa': placa,
+        'PIX': PIX
+      }),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final ret = json.decode(response.body);
+      final int idUser = ret["id"] ?? 0;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('idUser', idUser);
+      return true;
+    } else {
+      return false;
+    }
   }
-}
 
   static Future<bool> notifyPickedUp() async {
-    print("Entrou na API notifyPickedUp");
     try {
       String baseUrl = "https://teletudo.com/api/notifyPickedUp";
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       int? currentChamado = prefs.getInt('currentChamado');
-      print("chamado = "+currentChamado.toString());
       final response = await http.post(
         Uri.parse(baseUrl),
         headers: {
@@ -168,16 +165,12 @@ class API {
           'chamado': currentChamado
         }),
       );
-      print(response.statusCode);
       if (response.statusCode == 200) {
-          print("Sucesso ao notificar o servidor: ${response.body}");
-          return true;
-        } else {
-          print("Falha ao notificar o servidor: ${response.body}");
-          return false;
-        }
+        return true;
+      } else {
+        return false;
+      }
     } catch (e) {
-      print("Erro na chamada API: $e");
       return false;
     }
   }
@@ -210,6 +203,23 @@ class API {
     } catch (e) {
       print("Erro na chamada API: $e");
       return false;
+    }
+  }
+
+  static Future<String> saldo(int userId) async {
+    var response = await http.post(
+      Uri.parse('https://teletudo.com/api/saldo'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: json.encode({'userid': userId}),
+    );
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      return data['Valor'].toString();
+    } else {
+      throw Exception('Falha ao carregar o saldo');
     }
   }
 
