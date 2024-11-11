@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'resgate_page.dart';
 import 'models/delivery_details.dart';
 import 'package:flutter/material.dart';
 import 'package:tele_tudo_app/api.dart';
@@ -59,14 +60,29 @@ class _HomePageState extends State<HomePage> {
                     minimumSize: Size(150, 40), backgroundColor: Colors.grey),
               ),
               SizedBox(height: 10), // Espaço entre os botões
+
               ElevatedButton(
-                onPressed: null, // Desabilita temporariamente
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ResgatePage()),
+                  );
+                },
                 child: const Text('Resgate'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(150, 40),
                   backgroundColor: Colors.grey,
                 ),
               ),
+
+              // ElevatedButton(
+              //   onPressed: null, // Desabilita temporariamente
+              //   child: const Text('Resgate'),
+              //   style: ElevatedButton.styleFrom(
+              //     minimumSize: Size(150, 40),
+              //     backgroundColor: Colors.grey,
+              //   ),
+              // ),
             ],
             if (statusMessage != null)
               Padding(
@@ -279,7 +295,7 @@ class _HomePageState extends State<HomePage> {
     if (userId != null) {
       try {
         String newSaldo = await API.saldo(userId);
-        print("Saldo = "+newSaldo);
+        print("Saldo = " + newSaldo);
         setState(() {
           saldo = 'R\$ $newSaldo';
         });
@@ -288,5 +304,4 @@ class _HomePageState extends State<HomePage> {
       }
     }
   }
-
 }

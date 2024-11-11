@@ -207,6 +207,7 @@ class API {
   }
 
   static Future<String> saldo(int userId) async {
+    print("Ver o saldo do usuário "+userId.toString());
     var response = await http.post(
       Uri.parse('https://teletudo.com/api/saldo'),
       headers: <String, String>{
@@ -223,6 +224,4 @@ class API {
     }
   }
 
-}  
-
-
+}
