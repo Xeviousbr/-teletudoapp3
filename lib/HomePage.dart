@@ -19,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   bool hasPickedUp = false;
   bool deliveryCompleted = false;
   bool hasAcceptedDelivery = false;
-  String saldo = 'R\$ 0,00'; // Inicializa o saldo como R$ 0,00
+  String saldo = 'R\$ 0,00';
 
   @override
   void initState() {
@@ -75,14 +75,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              // ElevatedButton(
-              //   onPressed: null, // Desabilita temporariamente
-              //   child: const Text('Resgate'),
-              //   style: ElevatedButton.styleFrom(
-              //     minimumSize: Size(150, 40),
-              //     backgroundColor: Colors.grey,
-              //   ),
-              // ),
             ],
             if (statusMessage != null)
               Padding(
@@ -250,9 +242,9 @@ class _HomePageState extends State<HomePage> {
     if (success) {
       setState(() {
         deliveryCompleted = true;
-        hasAcceptedDelivery = false; // Reseta o aceite de nova entrega
-        hasPickedUp = false; // Reseta o status de retirada
-        deliveryData = null; // Limpa os dados da entrega
+        hasAcceptedDelivery = false;
+        hasPickedUp = false;
+        deliveryData = null;
         statusMessage = 'Entrega concluída com sucesso!';
       });
       updateSaldo();

@@ -5,6 +5,31 @@ import 'package:tele_tudo_app/models/delivery_details.dart';
 
 class API {
 
+  static Future<bool> sacar(int userId) async {
+    var url = Uri.parse('https://teletudo.com/api/sacar');
+    print("Acinando API de saque");
+    var headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    var body = json.encode({
+      'userid': userId.toString(),
+    });
+    bool ret = false;
+    try {
+      var response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        print("Resposta da API: ${response.body}");
+        ret = true;
+      } else {
+        print("Erro ao sacar: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Erro ao enviar requisição: $e");
+    }
+    return ret;
+  }
+
   static Future<bool> respondToDelivery(int userId, int deliveryId, bool accept) async {
     try {
       var url = Uri.parse("https://teletudo.com/api/respondToDelivery");

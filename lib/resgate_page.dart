@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tele_tudo_app/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ResgatePage extends StatefulWidget {
   @override
@@ -16,6 +16,71 @@ class _ResgatePageState extends State<ResgatePage> {
   void initState() {
     super.initState();
     fetchSaldo();
+  }
+
+  void processResgate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('idUser');
+    if (userId != null) {
+      try {
+        bool success = await API.sacar(userId);
+
+        if (success) {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('Resgate Concluído'),
+                  content: Text('Seu resgate foi processado com sucesso.'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Fecha o diálogo
+                        Navigator.of(context).pop(); // Retorna para a HomePage
+                      },
+                      child: Text('Ok'),
+                    )
+                  ],
+                );
+              }
+          );
+        }
+
+        else {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('Erro'),
+                  content: Text('Falha ao processar resgate. Tente novamente mais tarde.'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text('Ok'),
+                    )
+                  ],
+                );
+              }
+          );
+        }
+      } catch (e) {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Erro'),
+                content: Text('Ocorreu um erro durante a operação: $e'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('Ok'),
+                  )
+                ],
+              );
+            }
+        );
+      }
+    }
   }
 
   void fetchSaldo() async {
@@ -56,9 +121,9 @@ class _ResgatePageState extends State<ResgatePage> {
             ),
             TextButton(
               child: Text("Confirmar"),
-              onPressed: () {
-                // Lógica para processar o resgate
-                Navigator.of(context).pop();
+              onPressed: () async {
+                Navigator.of(context).pop(); // Fecha o diálogo imediatamente
+                processResgate(); // Chama a função que processa o resgate
               },
             ),
           ],

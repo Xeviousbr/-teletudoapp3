@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login (Versão 1.1.5'),
+        title: Text('EntregaTudo 1.1.5'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -70,22 +70,9 @@ class _LoginPageState extends State<LoginPage> {
                   } else {
                     showErrorDialog(result);
                   }
-
-                  // bool loginSuccessful = await API.veLogin(user, password, lat, lon);
-
-                  // if (loginSuccessful) {
-                  //   Navigator.of(context).pushReplacement(
-                  //     MaterialPageRoute(builder: (context) => const HomePage()),
-                  //   );
-                  // } else {
-                  //   showErrorDialog(
-                  //       "Falha no login. Verifique suas credenciais.");
-                  // }
-
                 } catch (e) {
                   showErrorDialog("Erro durante o login: $e");
                 }
-
               },
               child: const Text("Login"),
             ),
