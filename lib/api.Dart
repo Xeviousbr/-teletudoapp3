@@ -232,21 +232,31 @@ class API {
   }
 
   static Future<String> saldo(int userId) async {
-    print("Ver o saldo do usuário "+userId.toString());
+    print("Ver o saldo do usuário " + userId.toString());
     var response = await http.post(
       Uri.parse('https://teletudo.com/api/saldo'),
-      headers: <String, String>{
+      headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
+      // body: json.encode({'userid': 21}),
       body: json.encode({'userid': userId}),
     );
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
-      return data['Valor'].toString();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (data['Erro'] == 0) {
+        await prefs.setString('Pendente', data['Pendente']);
+        await prefs.setString('DtaPedResg', data['DtaPedResg']);
+        return data['Saldo'].toString();
+      } else {
+        throw Exception('Erro ao buscar saldo: ' + data['DescErro']);
+      }
     } else {
-      throw Exception('Falha ao carregar o saldo');
+      throw Exception(
+          'Falha ao carregar o saldo. Status: ${response.statusCode}');
     }
   }
+
 
 }

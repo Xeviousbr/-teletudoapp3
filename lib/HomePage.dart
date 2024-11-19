@@ -20,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   bool deliveryCompleted = false;
   bool hasAcceptedDelivery = false;
   String saldo = 'R\$ 0,00';
+  double saldoNum = 0.0;
 
   @override
   void initState() {
@@ -50,31 +51,29 @@ class _HomePageState extends State<HomePage> {
                 (deliveryCompleted || !hasAcceptedDelivery)) ...[
               Padding(
                 padding: EdgeInsets.all(20),
-                child: Text(saldo,
+                child: Text("Saldo $saldo",
                     style: TextStyle(fontSize: 18, color: Colors.black)),
               ),
               ElevatedButton(
-                onPressed: null, // Desabilita temporariamente
+                onPressed: null,
                 child: const Text('Detalhes'),
                 style: ElevatedButton.styleFrom(
                     minimumSize: Size(150, 40), backgroundColor: Colors.grey),
               ),
-              SizedBox(height: 10), // Espaço entre os botões
-
+              SizedBox(height: 10),
               ElevatedButton(
-                onPressed: () {
+                onPressed: saldoNum > 0 ? () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => ResgatePage()),
                   );
-                },
+                } : null,
                 child: const Text('Resgate'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(150, 40),
                   backgroundColor: Colors.grey,
                 ),
               ),
-
             ],
             if (statusMessage != null)
               Padding(
@@ -83,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(fontSize: 18, color: Colors.red)),
               ),
             if (hasAcceptedDelivery &&
-                !hasPickedUp) // Só mostra se a entrega foi aceita e ainda não foi ao fornecedor
+                !hasPickedUp)
               ElevatedButton(
                 onPressed: () {
                   handlePickedUp();
@@ -95,7 +94,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             if (hasPickedUp &&
-                !deliveryCompleted) // Mostra se o fornecedor já foi notificado
+                !deliveryCompleted)
               ElevatedButton(
                 onPressed: () {
                   handleDeliveryCompleted();
@@ -222,14 +221,14 @@ class _HomePageState extends State<HomePage> {
         hasAcceptedDelivery = true;
         hasPickedUp = false;
         statusMessage = "Entrega aceita. A caminho do fornecedor.";
-        deliveryData = null; // Limpa os dados de entrega
+        deliveryData = null;
       });
     } else {
       setState(() {
         hasAcceptedDelivery = false;
         hasPickedUp = false;
         deliveryCompleted =
-            true; // Considera a operação concluída para mostrar saldo e botões
+            true;
         statusMessage = "Entrega recusada.";
         deliveryData = null;
       });
@@ -238,7 +237,7 @@ class _HomePageState extends State<HomePage> {
 
   void handleDeliveryCompleted() async {
     bool success =
-        await API.notifyDeliveryCompleted(); // Ajuste conforme seu API
+        await API.notifyDeliveryCompleted();
     if (success) {
       setState(() {
         deliveryCompleted = true;
@@ -255,13 +254,12 @@ class _HomePageState extends State<HomePage> {
 
   void handleWaitingForNewDelivery() {
     setState(() {
-      // Limpa os dados de entrega ou mantém o estado que você precisa para nova entrega.
       deliveryData = null;
       statusMessage = "Aguardando novas entregas...";
       hasPickedUp = false;
       deliveryCompleted = false;
       hasAcceptedDelivery =
-          false; // Resetar todos os flags de estado, se necessário.
+          false;
     });
   }
 
@@ -269,7 +267,7 @@ class _HomePageState extends State<HomePage> {
     bool success = await API.notifyPickedUp();
     if (success) {
       setState(() {
-        hasPickedUp = true; // Atualiza que chegou no fornecedor
+        hasPickedUp = true;
         statusMessage = "Peguei a encomenda com o fornecedor.";
         deliveryCompleted = false;
       });
@@ -290,10 +288,12 @@ class _HomePageState extends State<HomePage> {
         print("Saldo = " + newSaldo);
         setState(() {
           saldo = 'R\$ $newSaldo';
+          saldoNum = double.parse(newSaldo.replaceAll('R\$', '').replaceAll(',', '.'));
         });
       } catch (e) {
         print('Erro ao atualizar saldo: $e');
       }
     }
   }
+
 }

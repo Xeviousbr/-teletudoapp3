@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:tele_tudo_app/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +12,10 @@ class _ResgatePageState extends State<ResgatePage> {
   String saldo = 'R\$ 0,00';
   String valorDebitado = 'R\$ 0,00';
   String valorResgate = 'R\$ 0,00';
+  bool resgatePendente = false;
+  String dataResgatePendente = '';
+  String valorPendente = 'R\$ 0,00';
+  String dataResgateFormatada = ''; // Formatted date string
 
   @override
   void initState() {
@@ -86,18 +91,23 @@ class _ResgatePageState extends State<ResgatePage> {
   void fetchSaldo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? userId = prefs.getInt('idUser');
-
     if (userId != null) {
       try {
         String newSaldo = await API.saldo(userId);
         double saldoNum = double.parse(newSaldo);
         double debito = saldoNum >= 500 ? 1.0 : 2.0;
         double valorAResgatar = saldoNum - debito;
-
+        valorPendente = prefs.getString('Pendente') ?? 'R\$ 0,00';
+        dataResgatePendente = prefs.getString('DtaPedResg') ?? '';
+        if (dataResgatePendente.isNotEmpty) {
+          DateTime parsedDate = DateTime.parse(dataResgatePendente);
+          dataResgateFormatada = DateFormat('dd/MM/yyyy HH:mm').format(parsedDate); // Format date
+        }
+        resgatePendente = valorPendente != 'R\$ 0,00';
         setState(() {
           saldo = 'R\$ ${saldoNum.toStringAsFixed(2)}';
           valorDebitado = 'R\$ ${debito.toStringAsFixed(2)}';
-          valorResgate = 'R\$ ${valorAResgatar.toStringAsFixed(2)}'; // Valor a ser resgatado
+          valorResgate = 'R\$ ${valorAResgatar.toStringAsFixed(2)}';
         });
       } catch (e) {
         print('Erro ao buscar saldo: $e');
@@ -108,28 +118,30 @@ class _ResgatePageState extends State<ResgatePage> {
   }
 
   void confirmResgate() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Confirmar Resgate"),
-          content: Text("Confirma transferência de $valorResgate para sua conta?"),
-          actions: <Widget>[
-            TextButton(
-              child: Text("Cancelar"),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              child: Text("Confirmar"),
-              onPressed: () async {
-                Navigator.of(context).pop(); // Fecha o diálogo imediatamente
-                processResgate(); // Chama a função que processa o resgate
-              },
-            ),
-          ],
-        );
-      },
-    );
+    if (!resgatePendente) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Confirmar Resgate"),
+            content: Text("Confirma transferência de $valorResgate para sua conta?"),
+            actions: <Widget>[
+              TextButton(
+                child: Text("Cancelar"),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: Text("Confirmar"),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o diálogo imediatamente
+                  processResgate(); // Chama a função que processa o resgate
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -143,15 +155,19 @@ class _ResgatePageState extends State<ResgatePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text("Saldo Total: $saldo", style: TextStyle(fontSize: 18)),
-            Text("Valor Debitado: $valorDebitado", style: TextStyle(fontSize: 18, color: Colors.red)),
+            Text("Custos Operacionais: $valorDebitado", style: TextStyle(fontSize: 18, color: Colors.red)),
             Text("Valor a Resgatar: $valorResgate", style: TextStyle(fontSize: 18, color: Colors.green)),
+            if (resgatePendente) ...[
+              Text("Resgate Pendente: $valorPendente", style: TextStyle(fontSize: 18, color: Colors.orange)),
+              Text("Data do Pedido: $dataResgateFormatada", style: TextStyle(fontSize: 18, color: Colors.orange)),
+            ],
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: confirmResgate,
-              child: Text('Resgatar'),
+              onPressed: resgatePendente ? null : confirmResgate,
+              child: Text(resgatePendente ? 'Resgate Pendente' : 'Resgatar'),
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(150, 40),
-                backgroundColor: Colors.green,
+                backgroundColor: resgatePendente ? Colors.grey : Colors.green,
               ),
             ),
           ],
@@ -159,4 +175,5 @@ class _ResgatePageState extends State<ResgatePage> {
       ),
     );
   }
+
 }
