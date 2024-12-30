@@ -1,9 +1,18 @@
+import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'features/location_service.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tele_tudo_app/models/delivery_details.dart';
 
 class API {
+  static final LocationService _locationService = LocationService();
+
+  static Future<Position> getCurrentLocation() async {
+    await _locationService.requestPermissions();
+    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  }
 
   static Future<bool> sacar(int userId) async {
     var url = Uri.parse('https://teletudo.com/api/sacar');
@@ -84,6 +93,11 @@ class API {
     int? userid = prefs.getInt('idUser');
     double lat = 0.0;
     double lon = 0.0;
+    if (Platform.isAndroid || Platform.isIOS) {
+      Position position = await getCurrentLocation();
+      lat = position.latitude;
+      lon = position.longitude;
+    }
     int vez = prefs.getInt('vez') ?? 0;
     await prefs.setInt('vez', vez + 1);
     if (userid != null) {

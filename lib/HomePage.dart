@@ -3,6 +3,7 @@ import 'resgate_page.dart';
 import 'models/delivery_details.dart';
 import 'package:flutter/material.dart';
 import 'package:tele_tudo_app/api.dart';
+import 'features/location_service.dart'; 
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,12 +22,14 @@ class _HomePageState extends State<HomePage> {
   bool hasAcceptedDelivery = false;
   String saldo = 'R\$ 0,00';
   double saldoNum = 0.0;
+  final LocationService _locationService = LocationService(); // Instância do serviço de localização
 
   @override
   void initState() {
     super.initState();
-    _scheduleNextHeartbeat(2);
-    updateSaldo();
+    _locationService.requestPermissions(); // Solicita permissões de localização
+    _scheduleNextHeartbeat(2); // Agenda a verificação inicial
+    updateSaldo(); // Atualiza o saldo
   }
 
   @override
@@ -62,12 +65,15 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: saldoNum > 0 ? () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ResgatePage()),
-                  );
-                } : null,
+                onPressed: saldoNum > 0
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ResgatePage()),
+                        );
+                      }
+                    : null,
                 child: const Text('Resgate'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(150, 40),
@@ -81,8 +87,7 @@ class _HomePageState extends State<HomePage> {
                 child: Text(statusMessage!,
                     style: TextStyle(fontSize: 18, color: Colors.red)),
               ),
-            if (hasAcceptedDelivery &&
-                !hasPickedUp)
+            if (hasAcceptedDelivery && !hasPickedUp)
               ElevatedButton(
                 onPressed: () {
                   handlePickedUp();
@@ -93,8 +98,7 @@ class _HomePageState extends State<HomePage> {
                   backgroundColor: Colors.orange,
                 ),
               ),
-            if (hasPickedUp &&
-                !deliveryCompleted)
+            if (hasPickedUp && !deliveryCompleted)
               ElevatedButton(
                 onPressed: () {
                   handleDeliveryCompleted();
@@ -227,8 +231,7 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         hasAcceptedDelivery = false;
         hasPickedUp = false;
-        deliveryCompleted =
-            true;
+        deliveryCompleted = true;
         statusMessage = "Entrega recusada.";
         deliveryData = null;
       });
@@ -236,8 +239,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void handleDeliveryCompleted() async {
-    bool success =
-        await API.notifyDeliveryCompleted();
+    bool success = await API.notifyDeliveryCompleted();
     if (success) {
       setState(() {
         deliveryCompleted = true;
@@ -258,8 +260,7 @@ class _HomePageState extends State<HomePage> {
       statusMessage = "Aguardando novas entregas...";
       hasPickedUp = false;
       deliveryCompleted = false;
-      hasAcceptedDelivery =
-          false;
+      hasAcceptedDelivery = false;
     });
   }
 
@@ -288,12 +289,12 @@ class _HomePageState extends State<HomePage> {
         print("Saldo = " + newSaldo);
         setState(() {
           saldo = 'R\$ $newSaldo';
-          saldoNum = double.parse(newSaldo.replaceAll('R\$', '').replaceAll(',', '.'));
+          saldoNum =
+              double.parse(newSaldo.replaceAll('R\$', '').replaceAll(',', '.'));
         });
       } catch (e) {
         print('Erro ao atualizar saldo: $e');
       }
     }
   }
-
 }
