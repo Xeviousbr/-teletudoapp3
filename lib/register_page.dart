@@ -73,6 +73,7 @@ class _RegisterPageState extends State<RegisterPage> {
               decoration: const InputDecoration(labelText: 'PIX'),
             ),
             const SizedBox(height: 20),
+
             ElevatedButton(
               onPressed: () async {
                 String nome = _nameController.text;
@@ -82,49 +83,47 @@ class _RegisterPageState extends State<RegisterPage> {
                 String telefone = _phoneController.text;
                 String placa = _placaController.text;
                 String PIX = _pix.text;
+                
                 if (!validarNome(nome)) {
-                  mostrarMensagem(
-                      context, 'Por favor, insira o nome completo.');
+                  mostrarMensagem(context, 'Por favor, insira o nome completo.');
                   return;
                 }
                 if (!validarEmail(email)) {
-                  mostrarMensagem(
-                      context, 'Por favor, insira um email válido.');
+                  mostrarMensagem(context, 'Por favor, insira um email válido.');
                   return;
                 }
                 if (!validarSenha(senha)) {
-                  mostrarMensagem(context,
-                      'A senha não pode ser vazia e deve ter no mínimo 6 caracteres.');
+                  mostrarMensagem(context, 'A senha não pode ser vazia e deve ter no mínimo 6 caracteres.');
                   return;
                 }
-                if (!validarCNH(_cnhController.text)) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text(
-                            'CNH inválida. Por favor, verifique o número informado.')),
-                  );
-                  return; // Interrompe a execução se a CNH for inválida
+                
+                // Chamada assíncrona à função de validação da CNH
+                bool cnhValida = await validarCNH(_cnhController.text);
+                if (!cnhValida) {
+                  // A CNH não é válida, mas o usuário pode escolher continuar
+                  bool continuar = await mostrarDialogoCNHInvalida(context);
+                  if (!continuar) {
+                    return;  // Se o usuário escolher não continuar, interrompe o processo
+                  }
                 }
+                
                 if (!validarPlaca(placa)) {
-                  mostrarMensagem(
-                      context, 'Por favor, insira uma placa válida.');
+                  mostrarMensagem(context, 'Por favor, insira uma placa válida.');
                   return;
                 }
-                bool Cadastrado = await API.registerUser(
-                    nome, email, senha, telefone, cnh, placa, PIX);
-                if (Cadastrado) {
+                
+                bool cadastrado = await API.registerUser(nome, email, senha, telefone, cnh, placa, PIX);
+                if (cadastrado) {
                   print('Cadastro bem-sucedido');
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const HomePage()),
-                  );
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomePage()));
                 } else {
                   print('Falha no cadastro');
-                  mostrarMensagem(context,
-                      'Falha no cadastro. Por favor, tente novamente.');
+                  mostrarMensagem(context, 'Falha no cadastro. Por favor, tente novamente.');
                 }
               },
               child: const Text("Cadastrar"),
             ),
+
           ],
         ),
       ),
@@ -157,7 +156,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  bool validarCNH(String cnh) {
+  Future<bool> validarCNH(String cnh) async {
     String cnhSemFormatacao = cnh.replaceAll(RegExp(r'\D'), '');
     if (cnhSemFormatacao.length != 11 || cnhSemFormatacao == "00000000000") {
       return false;
@@ -175,7 +174,38 @@ class _RegisterPageState extends State<RegisterPage> {
     soma += d1 * 2;
     int d2 = soma % 11;
     d2 = d2 < 10 ? d2 : 0;
-    return d1 == int.parse(cnhSemFormatacao[9]) &&
-        d2 == int.parse(cnhSemFormatacao[10]);
+    bool valido = d1 == int.parse(cnhSemFormatacao[9]) && d2 == int.parse(cnhSemFormatacao[10]);
+    if (!valido) {
+      return await mostrarDialogoCNHInvalida(context);
+    }
+    return true;
   }
+
+  Future<bool> mostrarDialogoCNHInvalida(BuildContext context) async {
+    return await showDialog(
+      context: context,
+      barrierDismissible: false,  // O usuário precisa selecionar uma opção
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text("CNH Inválida"),
+          content: Text("A CNH informada é inválida. Deseja continuar com o cadastro mesmo assim?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);  // Retorna falso para o Future
+              },
+              child: Text("Não"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);  // Retorna verdadeiro para o Future
+              },
+              child: Text("Sim"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }

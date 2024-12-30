@@ -13,12 +13,15 @@ dependencies:
   shared_preferences: ^2.0.16   
   flutter:
     sdk: flutter
+  geolocator: ^8.0.0
   universal_platform: ^1.0.0+1  
   dio: ^4.0.0  
+  background_fetch: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  permission_handler: ^9.0.0 
   flutter_lints: ^2.0.0
   intl: ^0.17.0
 
