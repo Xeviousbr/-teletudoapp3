@@ -10,6 +10,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final bool deixaPassarCnhInv = true;
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -17,6 +18,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _cnhController = TextEditingController();
   final _placaController = TextEditingController();
   final _pix = TextEditingController();
+  bool JaMostrouCnhInv = false;   
 
   @override
   void dispose() {
@@ -73,7 +75,6 @@ class _RegisterPageState extends State<RegisterPage> {
               decoration: const InputDecoration(labelText: 'PIX'),
             ),
             const SizedBox(height: 20),
-
             ElevatedButton(
               onPressed: () async {
                 String nome = _nameController.text;
@@ -82,8 +83,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 String cnh = _cnhController.text;
                 String telefone = _phoneController.text;
                 String placa = _placaController.text;
-                String PIX = _pix.text;
-                
+                String PIX = _pix.text;                
                 if (!validarNome(nome)) {
                   mostrarMensagem(context, 'Por favor, insira o nome completo.');
                   return;
@@ -95,28 +95,23 @@ class _RegisterPageState extends State<RegisterPage> {
                 if (!validarSenha(senha)) {
                   mostrarMensagem(context, 'A senha não pode ser vazia e deve ter no mínimo 6 caracteres.');
                   return;
-                }
-                
-                // Chamada assíncrona à função de validação da CNH
-                bool cnhValida = await validarCNH(_cnhController.text);
-                if (!cnhValida) {
-                  // A CNH não é válida, mas o usuário pode escolher continuar
-                  bool continuar = await mostrarDialogoCNHInvalida(context);
-                  if (!continuar) {
-                    return;  // Se o usuário escolher não continuar, interrompe o processo
-                  }
-                }
-                
+                }                
+                if (JaMostrouCnhInv==false) {
+
+                  if (!await validarEProcessarCnh()) return;
+
+                }                
                 if (!validarPlaca(placa)) {
                   mostrarMensagem(context, 'Por favor, insira uma placa válida.');
                   return;
-                }
-                
+                }                
                 bool cadastrado = await API.registerUser(nome, email, senha, telefone, cnh, placa, PIX);
                 if (cadastrado) {
+                  mostrarMensagem(context, 'Cadastro bem-sucedido');
                   print('Cadastro bem-sucedido');
                   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomePage()));
                 } else {
+                  mostrarMensagem(context, 'Falha no cadastro');
                   print('Falha no cadastro');
                   mostrarMensagem(context, 'Falha no cadastro. Por favor, tente novamente.');
                 }
@@ -128,6 +123,20 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
+  }
+
+Future<bool> validarEProcessarCnh() async {
+    bool cnhValida = await validarCNH(_cnhController.text);
+    if (!cnhValida) {
+      if (deixaPassarCnhInv) {
+        // CNH inválida, mas configurado para perguntar ao usuário
+        return await mostrarDialogoCNHInvalida();
+      } else {
+        mostrarMensagem(context, "A CNH informada é inválida e não é possível continuar o cadastro.");
+        return false;
+      }
+    }
+    return true;  // CNH válida
   }
 
   bool validarPlaca(String placa) {
@@ -175,37 +184,30 @@ class _RegisterPageState extends State<RegisterPage> {
     int d2 = soma % 11;
     d2 = d2 < 10 ? d2 : 0;
     bool valido = d1 == int.parse(cnhSemFormatacao[9]) && d2 == int.parse(cnhSemFormatacao[10]);
-    if (!valido) {
-      return await mostrarDialogoCNHInvalida(context);
-    }
-    return true;
+    return valido;
   }
 
-  Future<bool> mostrarDialogoCNHInvalida(BuildContext context) async {
-    return await showDialog(
+  Future<bool> mostrarDialogoCNHInvalida() async {
+    return await showDialog<bool>(
       context: context,
-      barrierDismissible: false,  // O usuário precisa selecionar uma opção
+      barrierDismissible: false, // O usuário precisa selecionar uma opção
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text("CNH Inválida"),
-          content: Text("A CNH informada é inválida. Deseja continuar com o cadastro mesmo assim?"),
+          title: const Text("CNH Inválida"),
+          content: const Text("A CNH informada é inválida. Deseja continuar com o cadastro mesmo assim?"),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(false);  // Retorna falso para o Future
-              },
-              child: Text("Não"),
+              onPressed: () => Navigator.of(dialogContext).pop(false), // Retorna false
+              child: const Text("Não"),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(true);  // Retorna verdadeiro para o Future
-              },
-              child: Text("Sim"),
+              onPressed: () => Navigator.of(dialogContext).pop(true), // Retorna true
+              child: const Text("Sim"),
             ),
           ],
         );
       },
-    );
+    ) ?? false; // Garante que um valor booleano seja retornado mesmo se o diálogo for fechado de outra forma
   }
 
 }
